@@ -1,3 +1,6 @@
+Список изменений для ветки auth_users
+
 1. Создано app User - для авторизации
 2. Сделан merge  - apps Анатолия - 'api.apps.ApiConfig',
     'reviews.apps.ReviewsConfig', settings.py
+3. Прописано app User в settings.py + модель user
