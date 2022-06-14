@@ -6,7 +6,6 @@ SCORE_CHOICES = [(i, i) for i in range(1, 11)]
 # from User.models import Admin, User
 
 
-
 class Category(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
@@ -24,7 +23,7 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    name = models.CharField()
+    name = models.CharField(max_length=256)
     year = models.IntegerField(
         'Год выпуска',
     )
@@ -32,6 +31,7 @@ class Title(models.Model):
     genre = models.ForeignKey(
         Genre,
         on_delete=models.SET_NULL,
+        null=True,
         verbose_name='Категория',
         related_name='titles'
     )
