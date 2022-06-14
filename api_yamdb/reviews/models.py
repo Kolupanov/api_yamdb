@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 
 
+# Should be replaced with User model
 User = get_user_model()
 SCORE_CHOICES = [(i, i) for i in range(1, 11)]
 
