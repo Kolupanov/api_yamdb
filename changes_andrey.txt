@@ -1,3 +1,18 @@
+Список изменений для ветки auth_users
+
 1. Создано app User - для авторизации
 2. Сделан merge  - apps Анатолия - 'api.apps.ApiConfig',
     'reviews.apps.ReviewsConfig', settings.py
+3. Прописано app User в settings.py + модель user
+
+************15/06/22
+убрал app User
+добавил в reviews/models.py model user с типами user
+переделал api_yamdb/settings.py - добавил apps для auth в installed apps
+                                  добавил сервис e-mail
+                                  работу по токену в REST....
+                поменял дефолтную модель чтения - только авторизованным
+добавил во view, serializers относительно user, auth
+добавил в permissions права в соответствии с типами юзеров
+добавил в api/urls пути для users, auth
+
