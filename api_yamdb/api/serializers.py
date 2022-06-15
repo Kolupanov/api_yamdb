@@ -94,8 +94,8 @@ class RegisterDataSerializer(serializers.ModelSerializer):
     )
 
     def validate_username(self, value):
-        if value.lower() == "me":
-            raise serializers.ValidationError("Username 'me' не подходит")
+        if value.lower() == 'me':
+            raise serializers.ValidationError("Username 'me' нельзя использовать")
         return value
 
     class Meta:

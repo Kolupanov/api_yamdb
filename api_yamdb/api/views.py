@@ -18,7 +18,8 @@ from .permissions import (IsAdmin, IsAdminModeratorOwnerOrReadOnly,
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
                           TitleSerializer, TokenSerializer,
-                          UserEditSerializer, UserSerializer)
+                          UserEditSerializer, UserSerializer,
+                          RegisterDataSerializer)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -86,6 +87,13 @@ def register(request):
         User,
         username=serializer.validated_data["username"]
     )
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def send_email(request):
+    # допилить
+    user = request.data.username
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
         subject="YaMDb registration",
@@ -93,8 +101,6 @@ def register(request):
         from_email=None,
         recipient_list=[user.email],
     )
-
-    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
