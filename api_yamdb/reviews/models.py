@@ -2,9 +2,10 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 # from django.contrib.auth import get_user_model
 
+
 # User = get_user_model()
+
 SCORE_CHOICES = [(i, i) for i in range(1, 11)]
-# from User.models import Admin, User
 
 
 class User(AbstractUser):
@@ -86,13 +87,7 @@ class Title(models.Model):
         'Год выпуска',
     )
     description = models.TextField(null=True)
-    genre = models.ForeignKey(
-        Genre,
-        on_delete=models.SET_NULL,
-        null=True,
-        verbose_name='Категория',
-        related_name='titles'
-    )
+    genre = models.ManyToManyField(Genre, through='GenreTitle')
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
@@ -104,6 +99,11 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class GenreTitle(models.Model):
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
 
 
 class Review(models.Model):
