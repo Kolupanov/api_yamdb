@@ -4,17 +4,17 @@ from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework import filters, permissions, status, viewsets
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import (LimitOffsetPagination,
                                        PageNumberPagination)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from reviews.models import Category, Comment, Genre, Review, Title, User
+from reviews.models import Category, Comment, Genre, Review, Title
+from users.models import User
 
-from .permissions import (IsAdmin, IsAdminModeratorOwnerOrReadOnly,
-                          IsAdminOrReadOnly, IsOwnerOrReadOnly)
+from .permissions import (IsAdmin, IsOwnerOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
                           TitleSerializer, TokenSerializer,
@@ -87,20 +87,12 @@ def register(request):
         User,
         username=serializer.validated_data["username"]
     )
+    if user.is_admin == False:  # noqa: E712
+        confirmation_code = default_token_generator.make_token(user)
+        send_mail(subject="YaMDb registration",
+                  message=f"Your confirmation code: {confirmation_code}",
+                  from_email=None, recipient_list=[user.email],)
     return Response(serializer.data, status=status.HTTP_200_OK)
-
-@api_view(["POST"])
-@permission_classes([permissions.AllowAny])
-def send_email(request):
-    # допилить
-    user = request.data.username
-    confirmation_code = default_token_generator.make_token(user)
-    send_mail(
-        subject="YaMDb registration",
-        message=f"Your confirmation code: {confirmation_code}",
-        from_email=None,
-        recipient_list=[user.email],
-    )
 
 
 @api_view(["POST"])
@@ -129,16 +121,12 @@ class UserViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     permission_classes = (IsAdmin,)
 
-    @action(
-        methods=[
-            "get",
-            "patch",
-        ],
-        detail=False,
-        url_path="me",
-        permission_classes=[permissions.IsAuthenticated],
-        serializer_class=UserEditSerializer,
-    )
+    @action(methods=["get", "patch", ],
+            detail=False,
+            url_path="me",
+            permission_classes=[permissions.IsAuthenticated],
+            serializer_class=UserEditSerializer,
+            )
     def users_own_profile(self, request):
         user = request.user
         if request.method == "GET":

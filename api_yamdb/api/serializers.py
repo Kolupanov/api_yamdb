@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from rest_framework.exceptions import ValidationError
-from reviews.models import Category, Comment, Genre, Review, Title, User
+from reviews.models import Category, Comment, Genre, Review, Title
+from users.models import User
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -81,21 +81,25 @@ class UserEditSerializer(serializers.ModelSerializer):
         read_only_fields = ('role',)
 
 
+class SendEmailSerializer(serializers.ModelSerializer):
+    queryset = User.objects.all()
+
+    class Meta:
+        fields = ("username",)
+        model = User
+
+
 class RegisterDataSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
-        validators=[
-            UniqueValidator(queryset=User.objects.all())
-        ]
+        validators=[UniqueValidator(queryset=User.objects.all())]
     )
     email = serializers.EmailField(
-        validators=[
-            UniqueValidator(queryset=User.objects.all())
-        ]
+        validators=[UniqueValidator(queryset=User.objects.all())]
     )
 
     def validate_username(self, value):
-        if value.lower() == 'me':
-            raise serializers.ValidationError("Username 'me' нельзя использовать")
+        if value.lower() == 'ya':
+            raise serializers.ValidationError("Username 'ya' нельзя использовать")
         return value
 
     class Meta:
