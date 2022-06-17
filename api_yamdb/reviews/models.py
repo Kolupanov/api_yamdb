@@ -41,6 +41,10 @@ class Title(models.Model):
         related_name='titles'
     )
 
+    class Meta:
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
+
     def __str__(self):
         return self.name
 

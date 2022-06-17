@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework import permissions, status, viewsets
+from rest_framework import permissions, mixins, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import (LimitOffsetPagination,
                                        PageNumberPagination)
@@ -14,20 +14,36 @@ from rest_framework_simplejwt.tokens import AccessToken
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
-from .permissions import (IsAdmin, IsOwnerOrReadOnly)
+from .filters import TitleFilter
+from .permissions import (IsAdmin, IsOwnerOrReadOnly, IsAdminOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
                           TitleSerializer, TokenSerializer,
                           UserEditSerializer, UserSerializer,
-                          RegisterDataSerializer)
+                          RegisterDataSerializer,)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class ReviewGenreModelMixin(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet
+):
+    permission_classes = [
+        IsOwnerOrReadOnly,
+        IsAdminOrReadOnly
+    ]
+    filter_backends = (DjangoFilterBackend,)
+    search_fields = ('name', 'slug')
+    lookup_field = 'slug'
+
+
+class CategoryViewSet(ReviewGenreModelMixin):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(ReviewGenreModelMixin):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
@@ -35,10 +51,10 @@ class GenreViewSet(viewsets.ModelViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
     pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)
-    filterset_class = ('genre', 'category', 'name', 'year')
+    filterset_class = TitleFilter
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
