@@ -29,10 +29,7 @@ class ReviewGenreModelMixin(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet
 ):
-    permission_classes = [
-        IsOwnerOrReadOnly,
-        IsAdminOrReadOnly
-    ]
+    permission_classes = [IsAdminOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
     search_fields = ('name', 'slug')
     lookup_field = 'slug'
