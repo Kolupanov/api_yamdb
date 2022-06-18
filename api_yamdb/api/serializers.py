@@ -18,6 +18,15 @@ class GenreSerializer(serializers.ModelSerializer):
         fields = ('name', 'slug')
 
 
+class TitleOutputSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(many=False, required=True)
+    genre = GenreSerializer(many=True, required=False)
+
+    class Meta:
+        model = Title
+        fields = ('id', 'name', 'year', 'description', 'genre', 'category')
+
+
 class TitleSerializer(serializers.ModelSerializer):
 
     category = serializers.SlugRelatedField(
@@ -26,6 +35,10 @@ class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         slug_field='slug', many=True, queryset=Genre.objects.all()
     )
+
+    def to_representation(self, value):
+        serializer = TitleOutputSerializer(value)
+        return serializer.data
 
     class Meta:
         model = Title
@@ -99,7 +112,9 @@ class RegisterDataSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
         if value.lower() == 'me':
-            raise serializers.ValidationError("Username 'me' нельзя использовать")
+            raise serializers.ValidationError(
+                "Username 'me' нельзя использовать"
+            )
         return value
 
     class Meta:

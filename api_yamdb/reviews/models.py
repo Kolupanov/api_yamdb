@@ -1,10 +1,6 @@
 from django.db import models
-# from django.contrib.auth.models import AbstractUser
-# from django.contrib.auth import get_user_model
 from users.models import User
 
-
-# User = get_user_model()
 
 SCORE_CHOICES = [(i, i) for i in range(1, 11)]
 
@@ -27,9 +23,7 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=256)
-    year = models.IntegerField(
-        'Год выпуска',
-    )
+    year = models.IntegerField(verbose_name='Год выпуска',)
     description = models.TextField(null=True)
     genre = models.ManyToManyField(Genre, through='GenreTitle')
     category = models.ForeignKey(
