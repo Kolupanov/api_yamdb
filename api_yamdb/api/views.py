@@ -116,7 +116,7 @@ def register(request):
         User,
         username=serializer.validated_data["username"]
     )
-    if user.is_admin == False:  # noqa: E712
+    if user.is_admin is False:  # noqa: E712
         confirmation_code = default_token_generator.make_token(user)
         send_mail(subject="YaMDb registration",
                   message=f"Your confirmation code: {confirmation_code}",
