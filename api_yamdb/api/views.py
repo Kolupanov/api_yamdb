@@ -16,7 +16,9 @@ from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
 from .filters import TitleFilter
-from .permissions import (IsAdmin, IsOwnerOrReadOnly, IsAdminOrReadOnly)
+from .permissions import (IsAdmin,
+                          IsAdminOrReadOnly,
+                          IsAdminModeratorOwnerOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
                           TitleSerializer, TokenSerializer,
@@ -59,7 +61,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsOwnerOrReadOnly, )
+    permission_classes = (IsAdminModeratorOwnerOrReadOnly, )
 
     @property
     def current_title(self):
@@ -69,6 +71,18 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return self.current_title.reviews.all()
 
+    def create(self, request, *args, **kwargs):
+        review_exist = Review.objects.filter(
+            author=request.user,
+            title=self.current_title
+        ).exists()
+        if review_exist:
+            return Response(
+                data={'message': 'Review already exist'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return super().create(request, *args, **kwargs)
+
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, title=self.current_title)
 
@@ -76,7 +90,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsOwnerOrReadOnly, )
+    permission_classes = (IsAdminModeratorOwnerOrReadOnly, )
 
     @property
     def current_review(self):

@@ -65,6 +65,14 @@ class Review(models.Model):
     )
     pub_date = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['title', 'author'],
+                name='unique_title_author'
+            )
+        ]
+
     def __str__(self):
         return self.text
 
