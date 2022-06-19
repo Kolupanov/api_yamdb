@@ -1,6 +1,7 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from django.db.models import Avg
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -47,7 +48,7 @@ class GenreViewSet(CategoryGenreModelMixin):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = LimitOffsetPagination
@@ -58,7 +59,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsOwnerOrReadOnly, )
+    permission_classes = [IsOwnerOrReadOnly]
 
     @property
     def current_title(self):
@@ -69,7 +70,18 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return self.current_title.reviews.all()
 
     def perform_create(self, serializer):
+        author = self.request.user
+        title = self.current_title
+
+        review = Review.objects.filter(
+            author=author,
+            title=title
+        )
+        if review is not None:
+            return Response(data={'message': 'Already exist'},
+                            status=status.HTTP_400_BAD_REQUEST)
         serializer.save(author=self.request.user, title=self.current_title)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
