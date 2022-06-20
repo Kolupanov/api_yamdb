@@ -32,12 +32,15 @@ class TitleOutputSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-
     category = serializers.SlugRelatedField(
-        slug_field='slug', many=False, queryset=Category.objects.all()
+        slug_field='slug',
+        many=False,
+        queryset=Category.objects.all()
     )
     genre = serializers.SlugRelatedField(
-        slug_field='slug', many=True, queryset=Genre.objects.all()
+        slug_field='slug',
+        many=True,
+        queryset=Genre.objects.all()
     )
 
     class Meta:
@@ -86,15 +89,15 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("username", "email", "first_name",
-                  "last_name", "bio", "role")
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
 
 
 class UserEditSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ("username", "email", "first_name",
-                  "last_name", "bio", "role")
         model = User
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
         read_only_fields = ('role',)
 
 
@@ -103,7 +106,7 @@ class SendEmailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("username",)
+        fields = ('username',)
 
 
 class RegisterDataSerializer(serializers.ModelSerializer):
@@ -116,12 +119,12 @@ class RegisterDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("username", "email")
+        fields = ('username', 'email')
 
     def validate_username(self, value):
         if value.lower() == 'me':
             raise serializers.ValidationError(
-                "Username 'me' нельзя использовать"
+                'Username \'me\' нельзя использовать'
             )
         return value
 

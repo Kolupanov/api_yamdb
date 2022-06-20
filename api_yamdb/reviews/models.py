@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 from users.models import User
 
@@ -74,11 +75,14 @@ class Review(models.Model):
         related_name='reviews'
     )
     score = models.IntegerField(
-        choices=SCORE_CHOICES
+        choices=SCORE_CHOICES,
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
     )
     pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        verbose_name = 'Обзор'
+        verbose_name_plural = 'Обзоры'
         constraints = [
             models.UniqueConstraint(
                 fields=['title', 'author'],
@@ -103,6 +107,10 @@ class Comment(models.Model):
         related_name='comments'
     )
     pub_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
 
     def __str__(self):
         return self.text

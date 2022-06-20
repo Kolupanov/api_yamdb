@@ -10,6 +10,7 @@ from rest_framework.pagination import (LimitOffsetPagination,
                                        PageNumberPagination)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework.serializers import ValidationError
 
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
@@ -68,19 +69,12 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return self.current_title.reviews.all()
 
-    def create(self, request, *args, **kwargs):
-        review_exist = Review.objects.filter(
-            author=request.user,
-            title=self.current_title
-        ).exists()
-        if review_exist:
-            return Response(
-                data={'message': 'Review already exist'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        return super().create(request, *args, **kwargs)
-
     def perform_create(self, serializer):
+        if Review.objects.filter(
+                author=self.request.user,
+                title=self.current_title
+        ).exists():
+            raise ValidationError('Обзор уже вами написан')
         serializer.save(author=self.request.user, title=self.current_title)
 
 
@@ -109,15 +103,15 @@ def register(request):
     serializer = RegisterDataSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    User.objects.get_or_create(username=serializer.validated_data['username'])
-    user = get_object_or_404(User,
-                             username=serializer.validated_data['username']
-                             )
-    if user.is_admin is False:  # noqa: E712
+    user, created = User.objects.get_or_create(
+        username=serializer.validated_data['username']
+    )
+    if not user.is_admin:  # noqa: E712
         confirmation_code = default_token_generator.make_token(user)
         send_mail(subject='YaMDb registration',
                   message=f'Your confirmation code: {confirmation_code}',
-                  from_email=None, recipient_list=[user.email],)
+                  from_email=None,
+                  recipient_list=[user.email],)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -132,7 +126,8 @@ def get_jwt_token(request):
     )
 
     if default_token_generator.check_token(
-        user, serializer.validated_data['confirmation_code']
+            user,
+            serializer.validated_data['confirmation_code']
     ):
         token = AccessToken.for_user(user)
         return Response({"token": str(token)}, status=status.HTTP_200_OK)
