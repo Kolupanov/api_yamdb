@@ -155,20 +155,14 @@ class UserViewSet(viewsets.ModelViewSet):
             )
     def users_own_profile(self, request):
         user = request.user
-        # В последнем замечании про лишний if (st. 165) - не согласен,
-        # не будет работать нормально, т.к. тут при несовпадении с методами
-        # GET и PATCH возвращается HTTP_405. Если убрать if ...
-        # PATCH нарушится структура отправки HTTP_405
         if request.method == 'GET':
             serializer = self.get_serializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        if request.method == 'PATCH':
-            serializer = self.get_serializer(
-                user,
-                data=request.data,
-                partial=True
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        serializer = self.get_serializer(
+            user,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
