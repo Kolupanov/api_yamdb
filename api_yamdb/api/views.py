@@ -103,36 +103,38 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, review=self.current_review)
 
 
-@api_view(["POST"])
+@api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def register(request):
     serializer = RegisterDataSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
+    # user = get_or_create(User,
+    #       username=serializer.validated_data['username']
     serializer.save()
-    user = get_object_or_404(
-        User,
-        username=serializer.validated_data["username"]
-    )
+    # user = get_object_or_404(
+    #    User,
+    #    username=serializer.validated_data['username']
+    # )
     if user.is_admin is False:  # noqa: E712
         confirmation_code = default_token_generator.make_token(user)
-        send_mail(subject="YaMDb registration",
-                  message=f"Your confirmation code: {confirmation_code}",
+        send_mail(subject='YaMDb registration',
+                  message=f'Your confirmation code: {confirmation_code}',
                   from_email=None, recipient_list=[user.email],)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@api_view(["POST"])
+@api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def get_jwt_token(request):
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     user = get_object_or_404(
         User,
-        username=serializer.validated_data["username"]
+        username=serializer.validated_data['username']
     )
 
     if default_token_generator.check_token(
-        user, serializer.validated_data["confirmation_code"]
+        user, serializer.validated_data['confirmation_code']
     ):
         token = AccessToken.for_user(user)
         return Response({"token": str(token)}, status=status.HTTP_200_OK)
@@ -141,24 +143,24 @@ def get_jwt_token(request):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    lookup_field = "username"
+    lookup_field = 'username'
     queryset = User.objects.all()
     serializer_class = UserSerializer
     pagination_class = PageNumberPagination
     permission_classes = (IsAdmin,)
 
-    @action(methods=["get", "patch", ],
+    @action(methods=['get', 'patch', ],
             detail=False,
-            url_path="me",
+            url_path='me',
             permission_classes=[permissions.IsAuthenticated],
             serializer_class=UserEditSerializer,
             )
     def users_own_profile(self, request):
         user = request.user
-        if request.method == "GET":
+        if request.method == 'GET':
             serializer = self.get_serializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        if request.method == "PATCH":
+        if request.method == 'PATCH':
             serializer = self.get_serializer(
                 user,
                 data=request.data,

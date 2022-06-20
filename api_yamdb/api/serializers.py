@@ -85,9 +85,9 @@ class UserSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
+        model = User
         fields = ("username", "email", "first_name",
                   "last_name", "bio", "role")
-        model = User
 
 
 class UserEditSerializer(serializers.ModelSerializer):
@@ -102,8 +102,8 @@ class SendEmailSerializer(serializers.ModelSerializer):
     queryset = User.objects.all()
 
     class Meta:
-        fields = ("username",)
         model = User
+        fields = ("username",)
 
 
 class RegisterDataSerializer(serializers.ModelSerializer):
@@ -114,16 +114,16 @@ class RegisterDataSerializer(serializers.ModelSerializer):
         validators=[UniqueValidator(queryset=User.objects.all())]
     )
 
+    class Meta:
+        model = User
+        fields = ("username", "email")
+
     def validate_username(self, value):
         if value.lower() == 'me':
             raise serializers.ValidationError(
                 "Username 'me' нельзя использовать"
             )
         return value
-
-    class Meta:
-        fields = ("username", "email")
-        model = User
 
 
 class TokenSerializer(serializers.Serializer):

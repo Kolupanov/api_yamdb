@@ -148,3 +148,5 @@ dmypy.json
 # папки со статикой и медиа
 media/
 
+# мои temp файлы
+.changes_andrey.txt
