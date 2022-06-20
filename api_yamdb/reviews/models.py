@@ -1,4 +1,5 @@
 from django.db import models
+
 from users.models import User
 
 
@@ -6,22 +7,33 @@ SCORE_CHOICES = [(i, i) for i in range(1, 11)]
 
 
 class Category(models.Model):
+    """Модель категория."""
     name = models.CharField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
+
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
     def __str__(self):
         return self.slug
 
 
 class Genre(models.Model):
+    """Модель жанр."""
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True)
+
+    class Meta:
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
 
     def __str__(self):
         return self.slug
 
 
 class Title(models.Model):
+    """Модель произведение."""
     name = models.CharField(max_length=256)
     year = models.IntegerField(verbose_name='Год выпуска',)
     description = models.TextField(null=True)
@@ -44,6 +56,7 @@ class Title(models.Model):
 
 
 class GenreTitle(models.Model):
+    """Вспомогательная модель для произведений."""
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
 

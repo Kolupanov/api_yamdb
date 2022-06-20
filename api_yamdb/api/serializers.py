@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
@@ -39,13 +40,13 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='slug', many=True, queryset=Genre.objects.all()
     )
 
+    class Meta:
+        model = Title
+        fields = '__all__'
+
     def to_representation(self, value):
         serializer = TitleOutputSerializer(value)
         return serializer.data
-
-    class Meta:
-        model = Title
-        fields = ('id', 'name', 'year', 'description', 'genre', 'category')
 
 
 class ReviewSerializer(serializers.ModelSerializer):
