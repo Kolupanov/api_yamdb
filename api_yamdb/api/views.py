@@ -108,13 +108,11 @@ class CommentViewSet(viewsets.ModelViewSet):
 def register(request):
     serializer = RegisterDataSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    # user = get_or_create(User,
-    #       username=serializer.validated_data['username']
     serializer.save()
-    # user = get_object_or_404(
-    #    User,
-    #    username=serializer.validated_data['username']
-    # )
+    User.objects.get_or_create(username=serializer.validated_data['username'])
+    user = get_object_or_404(User,
+                             username=serializer.validated_data['username']
+                             )
     if user.is_admin is False:  # noqa: E712
         confirmation_code = default_token_generator.make_token(user)
         send_mail(subject='YaMDb registration',
@@ -157,6 +155,10 @@ class UserViewSet(viewsets.ModelViewSet):
             )
     def users_own_profile(self, request):
         user = request.user
+        # В последнем замечании про лишний if (st. 165) - не согласен,
+        # не будет работать нормально, т.к. тут при несовпадении с методами
+        # GET и PATCH возвращается HTTP_405. Если убрать if ...
+        # PATCH нарушится структура отправки HTTP_405
         if request.method == 'GET':
             serializer = self.get_serializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
