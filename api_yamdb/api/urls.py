@@ -11,7 +11,11 @@ from .views import (CategoryViewSet,
 
 
 router = DefaultRouter()
-router.register(r'users', UserViewSet)
+urls_auth = [
+    path('users/', register, name='register'),
+    path('signup/', register, name='register'),
+    path('token/', get_jwt_token, name='token'),
+    ]
 router.register(r'titles', TitleViewSet)
 router.register(r'categories', CategoryViewSet, basename='categories')
 router.register(r'genres', GenreViewSet, basename='genres')
@@ -24,11 +28,10 @@ router.register(
     r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
     CommentViewSet,
     basename='review-comments'
-)
+),
+router.register('users', UserViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('auth/users/', register, name='register'),
-    path('auth/signup/', register, name='register'),
-    path('auth/token/', get_jwt_token, name='token'),
+    path('auth/', include(urls_auth)),
 ]
