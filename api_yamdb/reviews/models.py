@@ -8,7 +8,7 @@ SCORE_CHOICES = [(i, i) for i in range(1, 11)]
 
 
 class Category(models.Model):
-    """Модель категория."""
+    '''Модель категория.'''
     name = models.CharField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
 
@@ -21,7 +21,7 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
-    """Модель жанр."""
+    '''Модель жанр.'''
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True)
 
@@ -34,7 +34,7 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    """Модель произведение."""
+    '''Модель произведение.'''
     name = models.CharField(max_length=256)
     year = models.IntegerField(verbose_name='Год выпуска',)
     description = models.TextField(null=True)
@@ -57,12 +57,13 @@ class Title(models.Model):
 
 
 class GenreTitle(models.Model):
-    """Вспомогательная модель для произведений."""
+    '''Вспомогательная модель для произведений.'''
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
 
 
 class Review(models.Model):
+    '''Модель рецензия.'''
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -95,6 +96,7 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
+    '''Модель коментария.'''
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
