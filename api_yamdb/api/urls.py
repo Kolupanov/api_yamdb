@@ -7,7 +7,7 @@ from .views import (CategoryViewSet,
                     ReviewViewSet,
                     TitleViewSet,
                     UserViewSet, get_jwt_token,
-                    register)
+                    signup)
 
 
 router = DefaultRouter()
@@ -27,8 +27,8 @@ router.register(
 router.register('users', UserViewSet)
 
 urls_auth = [
-    path('users/', register, name='register'),
-    path('signup/', register, name='register'),
+    path('users/', signup, name='signup'),
+    path('signup/', signup, name='signup'),
     path('token/', get_jwt_token, name='token'),
 ]
 
