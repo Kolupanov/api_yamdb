@@ -30,12 +30,12 @@ python -m venv venv
 
 Windows
 ```
-source venv/Scripts/activate 
+venv\Scripts\activate.bat
 ```
 
-Linux
+Linux и MacOS
 ```
-source venv/bin/activate 
+source venv/bin/activate
 ```
 
 Установить и обновить систему управления пакетами pip:
